@@ -1,0 +1,334 @@
+<Panel
+    active = "false"
+    id="vpTrack"
+    height="6%"
+    width="86%"
+    color="rgba(0,0,0,0.5)"
+    rectAlignment="UpperCenter"
+    offsetXY="-60 -70"
+    hideAnimation="FadeOut"
+    animationDuration="0.5"
+    allowDragging="false"
+    returnToOriginalPositionWhenReleased="false"
+    scale = "1 1 1"
+    >
+    <Image
+      id = "vpTrackPanel"
+      image = "VPTrack"
+      height="100%"
+      width="100%"
+      preserveAspect="false"
+      rectAlignment="UpperCenter"
+      >
+    </Image>
+    <Button
+      onClick="hideVpTrack"
+      id="vpHideButton"
+      scale = "0.2 0.2 0.2"
+      height="100"
+      width="100"
+      color="rgba(0.9,0.59,0.4,0.1)"
+      text="X"
+      textColor="rgba(0,0,0,0.9)"
+      fontStyle="Bold"
+      fontSize="75"
+      rectAlignment="UpperRight"
+      offsetXY = "22 -2"
+      tooltip = "Remove Panel"
+      tooltipPosition = "Right"
+    >
+    </Button>
+    <Button
+      onClick="lockVpTrack"
+      id="vpLockButton"
+      scale = "0.2 0.2 0.2"
+      height="100"
+      width="100"
+      color="rgba(0.9,0.59,0.4,0.1)"
+      text="L"
+      textColor="rgba(0,0,0,0.9)"
+      fontStyle="Bold"
+      fontSize="75"
+      rectAlignment="UpperRight"
+      offsetXY = "22 -22"
+      tooltip = "Lock/Unlock Panel"
+      tooltipPosition = "Right"
+      >
+    </Button>
+    <Button
+      onClick="reorientVpTrack"
+      id="vpPosButton"
+      scale = "0.2 0.2 0.2"
+      height="100"
+      width="100"
+      color="rgba(0.9,0.59,0.4,0.1)"
+      text="O"
+      textColor="rgba(0,0,0,0.9)"
+      fontStyle="Bold"
+      fontSize="75"
+      rectAlignment="UpperRight"
+      offsetXY = "22 -42"
+      tooltip = "Flip Orientation"
+      tooltipPosition = "Right"
+      >
+    </Button>
+    <Panel
+      active = "true"
+      id="vpPanelOne"
+      height="87.5%"
+      width="3%"
+      color="rgba{0.118, 0.53, 1,0.7}"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -4"
+      scale = "1 1 1"
+     >
+      <Image
+       id = "vpIconOne"
+       image = "laurelVp"
+       color="Blue"
+       height="100%"
+       width="60"
+       offsetXY="0 0"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+      </Image>
+      <Image
+       active = "false"
+       id = "coalitionIconOne"
+       image = "laurelVp"
+       color="White"
+       height="100%"
+       width="60"
+       offsetXY="60 0"
+       preserveAspect="false"
+       rectAlignment="MiddleCenter"
+       >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonOne"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+    <Panel
+      active = "true"
+      id="vpPanelTwo"
+      height="87.5%"
+      width="3%"
+      color="rgba{0.956, 0.392, 0.113,0.7}"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -40"
+      scale = "1 1 1"
+     >
+      <Image
+       id = "vpIconTwo"
+       image = "laurelVp"
+       color="Orange"
+       height="100%"
+       width="60"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+      </Image>
+      <Image
+       active = "false"
+       id = "coalitionIconTwo"
+       image = "laurelVp"
+       color="Red"
+       height="100%"
+       width="60"
+       offsetXY="60 0"
+       preserveAspect="false"
+       rectAlignment="MiddleCenter"
+       >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonTwo"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+    <Panel
+      active = "true"
+      id="vpPanelThree"
+      height="87.5%"
+      width="3%"
+      color="rgba{0.627, 0.125, 0.941,0.7}"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -80"
+      scale = "1 1 1"
+     >
+      <Image
+       id = "vpIconThree"
+       image = "laurelVp"
+       color="Purple"
+       height="100%"
+       width="60"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+      </Image>
+      <Image
+       active = "false"
+       id = "coalitionIconThree"
+       image = "laurelVp"
+       color="White"
+       height="100%"
+       width="60"
+       offsetXY="60 0"
+       preserveAspect="false"
+       rectAlignment="MiddleCenter"
+       >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonThree"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+    <Panel
+      active = "true"
+      id="vpPanelFour"
+      height="87.5%"
+      width="3%"
+      color="rgba{0.905, 0.898, 0.172,0.7}"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -120"
+      scale = "1 1 1"
+     >
+      <Image
+       id = "vpIconFour"
+       image = "laurelVp"
+       color="Yellow"
+       height="100%"
+       width="60"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+      </Image>
+      <Image
+       active = "false"
+       id = "coalitionIconFour"
+       image = "laurelVp"
+       color="White"
+       height="100%"
+       width="60"
+       offsetXY="60 0"
+       preserveAspect="false"
+       rectAlignment="MiddleCenter"
+       >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonFour"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+    <Panel
+      active = "false"
+      id="vpPanelFive"
+      height="87.5%"
+      width="3%"
+      color="rgba(1,1,1,0.7)"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -160"
+      scale = "1 1 1"
+     >
+      <Image
+       id = "vpIconFive"
+       image = "laurelVp"
+       color="White"
+       height="100%"
+       width="60"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+      </Image>
+      <Image
+       active = "false"
+       id = "coalitionIconFive"
+       image = "laurelVp"
+       color="White"
+       height="100%"
+       width="60"
+       offsetXY="60 0"
+       preserveAspect="false"
+       rectAlignment="MiddleCenter"
+       >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonFive"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+    <Panel
+      active = "false"
+      id="vpPanelSix"
+      height="87.5%"
+      width="3%"
+      color="rgba(0.856, 0.1, 0.094,0.7)"
+      rectAlignment="UpperLeft"
+      offsetXY="4 -200"
+      scale = "1 1 1"
+     >
+     <Image
+       id = "vpIconSix"
+       image = "laurelVp"
+       color="Red"
+       height="100%"
+       width="60"
+       preserveAspect="false"
+       rectAlignment="MiddleRight"
+       >
+     </Image>
+     <Image
+      active = "false"
+      id = "coalitionIconSix"
+      image = "laurelVp"
+      color="White"
+      height="100%"
+      width="60"
+      offsetXY="60 0"
+      preserveAspect="false"
+      rectAlignment="MiddleCenter"
+      >
+      </Image>
+      <Button
+      onClick="updatePlayerScore"
+      id="vpButtonSix"
+      height="100%"
+      width="100%"
+      colors="rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)|rgba(0,0,0,0)"
+      padding="0,0,0,0"
+      rectAlignment="MiddleRight"
+      >
+      </Button>
+    </Panel>
+</Panel>

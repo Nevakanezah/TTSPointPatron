@@ -1,0 +1,411 @@
+-- function createUI()
+--   local guid = self.getGUID()
+--   if not UI.getAttribute(vpTrack, "visibility") then
+--     local uiString1 = string.gsub(self.UI.getXml(), "GUIDPLACEHOLDER", guid)
+--     local uiString2 = string.gsub(uiString1, "thebuttonid", buttonId)
+--     local uiString3 = string.gsub(uiString2, "VISPLACEHOLDER", "")
+--     local uiString = string.gsub(uiString3, "thepanelid", panelId)
+--     return uiString
+--   else
+--     return ""
+--   end
+-- end
+
+function onDestroy()
+  resetVpTrack()
+  UI.setAttribute("vpTrack", "active", "false")
+end
+
+function onSave()
+  local colourTable = {}
+  for index,v in pairs({"One", "Two", "Three", "Four", "Five", "Six"}) do
+    if UI.getAttribute("vpPanel"  .. v, "active") == "true" then
+      colourTable["vpButton"..v]   = UI.getAttribute("vpIcon" .. v, "color")
+    end
+  end
+
+  local state = {
+    vpTrackScores = self.getTable("scores"),
+    vpTrackColours = colourTable
+  }
+  return JSON.encode(state)
+end
+
+-- function dumbGoddamnButtonRequirement()
+--   return ""
+-- end
+
+function onLoad(script_state)
+  -- local startButton = {click_function = "showVpTrack", function_owner = self, label = "Start", position = {0, 0.1, -0.1}, scale = {0.5, 0.5, 0.5}, width = 1300, height = 600, font_size = 400, color = {0.1568, 0.1568, 0.1568, 1}, font_color = {1, 1, 1, 1}}
+  -- local resetButton = {click_function = "resetVpTrack", function_owner = self, label = "Reset", position = {0, 0.1, 0.55}, scale = {0.5, 0.5, 0.5}, width = 1300, height = 600, font_size = 400, color = {0.1568, 0.1568, 0.1568, 1}, font_color = {1, 1, 1, 1}}
+  -- local infoButton = {click_function = "dumbGoddamnButtonRequirement", function_owner = self, label = "[?]", position = {0.65, 0.1, -0.85}, scale = {0.5, 0.5, 0.5}, width = 200, height = 200, color = {0.1568, 0.1568, 0.1568, 1}, font_color = {1, 1, 1, 1}, tooltip = "Point Patron: A visual VP tracker,\nfor streamers or something.\n---------------------------\nPress Start to see the vp tracker,\nand set tokens for each player with a colour.\nPress Reset to reset all scores.\n\nLeft-click VP tokens to increase score.\nRight-click to decrease score.\nYou can click the token,\nor the bar with that player's colour.\n\nMiddle-click to cycle win condition:\nVp -> Bird dom -> Fox -> Mouse\n-> Rabbit -> Coalition -> VP.\n\nYou can change a player's score even\nwith alternate win conditions.\nDominance shows clearings ruled,\nCoalition shows their partner's VP token.\n\nDeleting this object will remove the tracker."}
+  --
+  -- self.createButton(startButton)
+  -- self.createButton(resetButton)
+  -- self.createButton(infoButton)
+
+  local state = JSON.decode(script_state)
+  self.setTable("vis",{})
+  self.setTable("buttons",{
+    vpButtonOne   = "One",
+    vpButtonTwo   = "Two",
+    vpButtonThree = "Three",
+    vpButtonFour  = "Four",
+    vpButtonFive  = "Five",
+    vpButtonSix   = "Six"
+  })
+
+-- Wincon, VP, Dom count, Coalition
+-- Wincon represents: VP (v), Dom (b,f,r,m), Coalition (colours)
+  local scoreTable = {}
+  if state.vpTrackScores == nil then
+    scoreTable = {}
+    scoreTable["White"]   = {"v","0","0","Pink"}
+    scoreTable["Brown"]   = {"v","0","0","Pink"}
+    scoreTable["Red"]     = {"v","0","0","Pink"}
+    scoreTable["Orange"]  = {"v","0","0","Pink"}
+    scoreTable["Yellow"]  = {"v","0","0","Pink"}
+    scoreTable["Green"]   = {"v","0","0","Pink"}
+    scoreTable["Teal"]    = {"v","0","0","Pink"}
+    scoreTable["Blue"]    = {"v","0","0","Pink"}
+    scoreTable["Purple"]  = {"v","0","0","Pink"}
+    scoreTable["Pink"]    = {"v","0","0","Pink"}
+  else
+    scoreTable = state.vpTrackScores
+  end
+  self.setTable("scores", scoreTable)
+
+
+  UI.setAttribute("vpTrack", "active", "true")
+  -- -- Credit to https://gist.github.com/pwestling
+  -- local counter = Global.getVar("frameCounter")
+  -- if not counter then
+  --   counter = 1
+  -- end
+  -- Global.setVar("frameCounter", counter+1)
+  -- local update = function ()
+  --   local totalUI = createUI()
+  --   if totalUI ~= "" then
+  --     UI.setXml(UI.getXml() .. totalUI)
+  --   end
+  -- end
+  -- Wait.frames(update, counter*10)
+  -- -- End credit
+
+  for k,v in pairs(state.vpTrackColours) do
+    if v then
+      updateTokenUI(k, v)
+    end
+  end
+
+  registerPlayers()
+  Wait.frames(reloadUI, 4)
+end
+
+function registerPlayers()
+  local players = {}
+  if Turns.enable then
+    for k,player in ipairs(Turns.order) do
+      if player and player.color ~= "Grey" and player.color ~= "Black" then
+        players[#players+1] = player.color
+      end
+    end
+  else
+    for k,player in ipairs(Player.getPlayers()) do
+      if player and player.color ~= "Grey" and player.color ~= "Black" then
+        players[#players+1] = player.color
+      end
+    end
+  end
+
+  for index,v in pairs({"One", "Two", "Three", "Four", "Five", "Six"}) do
+    local bool = "false"
+    local colour = "White"
+    if players[index] then
+      bool = "true"
+      colour = players[index]
+      UI.setAttribute("vpIcon"..v, "color", colour)
+      colour = Color.fromString(colour)
+      r,g,b,a = colour:get()
+      UI.setAttribute("vpPanel"..v, "color", "rgba{"..r..","..g..","..b..","..0.7.."}")
+    end
+    UI.setAttribute("vpPanel"..v, "active", bool)
+    UI.setAttribute("vpIcon"..v, "active", bool)
+  end
+end
+
+function updatePlayerScore(player, value, id)
+  local scoreTable = self.getTable("scores")
+  local colour = UI.getAttribute("vpIcon" .. buttons[id], "color")
+  local wincon = scoreTable[colour][1]
+
+  if value == "-3" then -- Cycle the win condition
+    if wincon == "v" then
+      scoreTable[colour][1] = "b"
+    elseif wincon == "b" then
+      scoreTable[colour][1] = "f"
+    elseif wincon == "f" then
+      scoreTable[colour][1] = "m"
+    elseif wincon == "m" then
+      scoreTable[colour][1] = "r"
+    elseif wincon == "r" then
+      scoreTable[colour][1] = "c"
+    else
+      scoreTable[colour][1] = "v"
+    end
+
+  elseif value == "-1" then -- Left-click increments upward
+    if wincon == "v" then
+      local score = scoreTable[colour][2]
+      score = (tonumber(score) >= 30) and "30" or (score + 1)
+      scoreTable[colour][2] = score
+
+    elseif (wincon == "b"
+    or wincon == "r"
+    or wincon == "f"
+    or wincon == "m") then
+      local dom = scoreTable[colour][3]
+      dom = dom + 1
+      dom = (tonumber(dom) > 4) and "4" or dom
+      scoreTable[colour][3] = dom .. ""
+
+    elseif wincon == "c" then
+      local coal = scoreTable[colour][4]
+      if coal == "Pink" then coal = "White"
+      elseif coal == "White" then coal = "Brown"
+      elseif coal == "Brown" then coal = "Red"
+      elseif coal == "Red" then coal = "Orange"
+      elseif coal == "Orange" then coal = "Yellow"
+      elseif coal == "Yellow" then coal = "Green"
+      elseif coal == "Green" then coal = "Teal"
+      elseif coal == "Teal" then coal = "Blue"
+      elseif coal == "Blue" then coal = "Purple"
+      elseif coal == "Purple" then coal = "Pink" end
+      scoreTable[colour][4] = coal
+
+    else
+      scoreTable[colour] = {"v","0","0","Pink"}
+    end
+
+  elseif value == "-2" then -- Right-click decrements downward
+    if wincon == "v" then
+      local score = scoreTable[colour][2]
+      score = (tonumber(score) <= 0) and "0" or (score - 1)
+      scoreTable[colour][2] = score
+
+    elseif (wincon == "b"
+    or wincon == "r"
+    or wincon == "f"
+    or wincon == "m") then
+      local dom = scoreTable[colour][3]
+      dom = dom - 1
+      dom = (tonumber(dom) < 0) and "0" or dom
+      scoreTable[colour][3] = dom .. ""
+
+    elseif wincon == "c" then
+      local coal = scoreTable[colour][4]
+      if coal == "Brown" then coal = "White"
+      elseif coal == "Red" then coal = "Brown"
+      elseif coal == "Orange" then coal = "Red"
+      elseif coal == "Yellow" then coal = "Orange"
+      elseif coal == "Green" then coal = "Yellow"
+      elseif coal == "Teal" then coal = "Green"
+      elseif coal == "Blue" then coal = "Teal"
+      elseif coal == "Purple" then coal = "Blue"
+      elseif coal == "Pink" then coal = "Purple"
+      elseif coal == "White" then coal = "Pink" end
+      scoreTable[colour][4] = coal
+
+    else
+      scoreTable[colour] = {"v","0","0","Pink"}
+    end
+
+  else return end
+
+  self.setTable("scores", scoreTable)
+  updateTokenUI(id, colour)
+
+  -- Reload UI when the win condition changes
+  if value == "-3" then
+    Wait.frames(reloadUI, 4)
+  end
+end
+
+-- Redraw score token to match scores table
+function updateTokenUI(id, colour)
+  local scoreTable = self.getTable("scores")
+  local wincon = scoreTable[colour][1]
+  local score = scoreTable[colour][2]
+  local icon = "laurelVp"
+  local icon_2 = "domZero"
+  local pos = 99.7
+  -- Update UI params
+  if wincon == "v" then
+    score = (tonumber(score) > 30) and 30 or score
+    score = (tonumber(score) < 0) and 0 or score
+    pos = (3.223 * score) + 3
+  elseif wincon == "b" then
+    icon = "laurelBird"
+    UI.setAttribute("coalitionIcon" .. buttons[id], "color", "Blue")
+  elseif wincon == "r" then
+    icon = "laurelRabbit"
+    UI.setAttribute("coalitionIcon" .. buttons[id], "color", "Yellow")
+  elseif wincon == "f" then
+    icon = "laurelFox"
+    UI.setAttribute("coalitionIcon" .. buttons[id], "color", "Red")
+  elseif wincon == "m" then
+    icon = "laurelMouse"
+    UI.setAttribute("coalitionIcon" .. buttons[id], "color", "Orange")
+  elseif (wincon == "c")
+    then
+      icon = "laurelCoalition"
+      icon_2 = "laurelVp"
+      UI.setAttribute("coalitionIcon" .. buttons[id], "color", scoreTable[colour][4])
+  else
+    return
+  end
+
+  if (wincon == "b"
+  or wincon == "r"
+  or wincon == "f"
+  or wincon == "m") then
+    icon_2 = getDominanceIcon(colour)
+  end
+
+  --Redraw elements that have changed.
+  if UI.getAttribute("vpIcon" .. buttons[id], "image") ~= icon then
+    UI.setAttribute("vpIcon" .. buttons[id], "image", icon)
+  end
+
+  if UI.getAttribute("coalitionIcon" .. buttons[id], "image") ~= icon_2 then
+    UI.setAttribute("coalitionIcon" .. buttons[id], "image", icon_2)
+  end
+
+  if UI.getAttribute("vpPanel" .. buttons[id], "width") ~=  pos .. "%" then
+    UI.setAttribute("vpPanel" .. buttons[id], "width", pos .. "%")
+  end
+
+  if wincon ~= "v" then
+    UI.setAttribute("vpIcon" .. buttons[id], "rectAlignment", "MiddleCenter")
+    UI.setAttribute("coalitionIcon" .. buttons[id], "active", "true")
+  elseif wincon == "v" and UI.setAttribute("vpIcon" .. buttons[id], "rectAlignment") ~= "MiddleRight" then
+    UI.setAttribute("vpIcon" .. buttons[id], "rectAlignment", "MiddleRight")
+    UI.setAttribute("coalitionIcon" .. buttons[id], "active", "false")
+  end
+end
+
+--Moves VP token left and right
+function updateVpToken(value, id)
+  local colour = UI.getAttribute("vpIcon" .. buttons[id], "color")
+  local scoreTable = self.getTable("scores")
+  local score = scoreTable[colour][1]
+
+  if value == "-2" then score = score - 1
+  elseif value == "-1" then score = score + 1
+  else return end
+
+  if tonumber(score) > 30 then score = "30" end
+  if tonumber(score) < 0 then score = "0" end
+
+  scoreTable[colour][1] = score
+  self.setTable("scores", scoreTable)
+end
+
+-- Returns the icon name for dominance victory.
+function getDominanceIcon(colour)
+  local domTable = self.getTable("scores")
+  local dom = domTable[colour][3]
+
+  if dom == "1" then
+    return "domOne"
+  elseif dom == "2" then
+    return "domTwo"
+  elseif dom == "3" then
+    return "domThree"
+  elseif dom == "4" then
+    return "domFour"
+  else
+    return "domZero"
+  end
+end
+
+-- Credit to https://gist.github.com/pwestling
+function showVpTrack(player, value, id)
+  local player = Player[peekerColor]
+  if index == 1 and player.getHoverObject() and player.getHoverObject().getGUID() == self.getGUID() then
+    local vis = self.getTable("vis")
+    vis[player.color] = player.color
+    setVis("vpTrack", vis)
+  end
+end
+
+function hideVpTrack(player, value, id)
+  local vis = UI.getAttribute("vpTrack", "visibility")
+  local peekerColor = player.color
+  local vis = self.getTable("vis")
+  vis[player.color] = nil
+  setVis("vpTrack", vis)
+end
+
+function setVis(panelId, vis)
+  local vistable = {}
+  for k,v in pairs(vis) do
+  if v then
+    table.insert(vistable, v)
+  end
+  end
+  if #vistable > 0 then
+    local visstring = table.concat(vistable, "|")
+    UI.setAttribute(panelId, "visibility", visstring)
+    UI.setAttribute(panelId, "active", "true")
+  else
+    UI.setAttribute(panelId, "active", "false")
+  end
+  self.setTable("vis", vis)
+end
+-- End credit
+
+function resetVpTrack()
+  scoreTable = self.getTable("scores")
+
+  for k,v in pairs(Color.list) do
+    if k < 11 then
+      scoreTable[v] = {"v","0","0","Pink"}
+    end
+  end
+  self.setTable("scores", scoreTable)
+end
+
+function lockVpTrack(player, value, id)
+  if UI.getAttribute("vpTrack", "allowDragging") == "false" then
+    UI.setAttribute("vpTrack", "allowDragging", "true")
+  elseif UI.getAttribute("vpTrack", "allowDragging") == "true" then
+    UI.setAttribute("vpTrack", "allowDragging", "false")
+  end
+end
+
+function reorientVpTrack(player, value, id)
+  if UI.getAttribute("vpPanelTwo", "offsetXY") == "4 -40" then
+    UI.setAttribute("vpPanelTwo", "offsetXY", "4 40")
+    UI.setAttribute("vpPanelThree", "offsetXY", "4 80")
+    UI.setAttribute("vpPanelFour", "offsetXY", "4 120")
+    UI.setAttribute("vpPanelFive", "offsetXY", "4 160")
+    UI.setAttribute("vpPanelSix", "offsetXY", "4 200")
+    UI.setAttribute("vpTrack", "offsetXY", "0 10")
+    UI.setAttribute("vpTrack", "rectAlignment", "LowerCenter")
+    Wait.frames(reloadUI, 4)
+  else
+    UI.setAttribute("vpPanelTwo", "offsetXY", "4 -40")
+    UI.setAttribute("vpPanelThree", "offsetXY", "4 -80")
+    UI.setAttribute("vpPanelFour", "offsetXY", "4 -120")
+    UI.setAttribute("vpPanelFive", "offsetXY", "4 -160")
+    UI.setAttribute("vpPanelSix", "offsetXY", "4 -200")
+    UI.setAttribute("vpTrack", "offsetXY", "-60 -70")
+    UI.setAttribute("vpTrack", "rectAlignment", "UpperCenter")
+    Wait.frames(reloadUI, 4)
+  end
+end
+
+function reloadUI()
+  UI.setXml(UI.getXml())
+end
